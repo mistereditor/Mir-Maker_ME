@@ -27,7 +27,7 @@ def load_tim_files(folder_a: str) -> Dict[str, Tim_Object]:
 
     folder = Path(folder_a)
     if not folder.is_dir():
-        raise RuntimeError(f"Folder A nie istnieje: {folder_a}")
+        raise RuntimeError(f"Folder A does not exist: {folder_a}")
 
     for file in folder.iterdir():
         if file.suffix.lower() != ".tim":
@@ -43,7 +43,7 @@ def load_tim_files(folder_a: str) -> Dict[str, Tim_Object]:
         tim_objects[key] = tim_obj
 
     if not tim_objects:
-        raise RuntimeError("Folder A nie zawiera plików .tim")
+        raise RuntimeError("Source folder does not contain .tim files")
 
     return tim_objects
 
@@ -70,20 +70,20 @@ def match_png_files(
     folder = Path(folder_b)
 
     if not folder.is_dir():
-        raise RuntimeError(f"Folder B nie istnieje: {folder_b}")
+        raise RuntimeError(f"Work folder does not exist: {folder_b}")
 
     for name, tim in tim_objects.items():
         png_path = folder / f"{name}.png"
 
         if not png_path.exists():
-            raise RuntimeError(f"Brak PNG dla {name}.tim")
+            raise RuntimeError(f"No PNG for {name}.tim")
 
         # sprawdzenie rozmiaru
         from PIL import Image
         with Image.open(png_path) as img:
             if img.size != (tim.pixel_data_width, tim.pixel_data_height):
                 raise RuntimeError(
-                    f"Rozmiar PNG niezgodny z TIM dla {name}: "
+                    f"Size of PNG not matching TIM for {name}: "
                     f"PNG={img.size}, TIM=({tim.pixel_data_width},{tim.pixel_data_height})"
                 )
 
@@ -296,7 +296,7 @@ def convert_png_tim(folder_a: str, folder_b: str, out_folder: str):
             src = Image.open(png_file).convert("RGBA")
             # ensure size matches (match_png_files already checked, but double-check)
             if src.size != (tim_obj.pixel_data_width, tim_obj.pixel_data_height):
-                raise RuntimeError(f"Rozmiar PNG {png_file} != TIM {name} -> abort")
+                raise RuntimeError(f"Size of PNG {png_file} != TIM {name} -> abort")
 
             # Try to use Tim_Object.encode_from_pil if available (preferred)
             try:
