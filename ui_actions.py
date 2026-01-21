@@ -147,15 +147,51 @@ def validate_group_palettes(
 # 5. Główna funkcja wywoływana przez UI
 # ============================================================
 
-def convert_tim_png(folder_a: str, folder_b: str):
-    print("Loading TIM files...")
-    tim_objects = load_tim_files(folder_a)
+def convert_tim_png(folder_a: str, work_folder: str):
+    """
+    Wczytaj wszystkie TIMy z folder_a i zapisz jako PNGy do work_folder
+    o tych samych nazwach (basename.png). Zwraca listę zapisanych plików.
+    """
+    from PIL import Image
 
-    print("Saving PNG files...")
-    png_map = match_png_files(tim_objects, folder_b)
+    tim_objects = load_tim_files(folder_a)  # wykorzystuje istniejącą funkcję
+    out_dir = Path(work_folder)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
+    saved = []
+    for name, tim in tim_objects.items():
+        try:
+            # upewnij się, że mamy PIL image w obiekcie Tim_Object
+            pil_img = getattr(tim, "pil_image", None)
+            if pil_img is None:
+                # decode() ustawi tim.pil_image i zwróci QPixmap (ale potrzebujemy pil_image)
+                # jeśli decode() nie istnieje / zachowuje się inaczej, rzućmy czytelny błąd
+                if hasattr(tim, "decode"):
+                    tim.decode()
+                    pil_img = getattr(tim, "pil_image", None)
+                else:
+                    raise RuntimeError("Tim_Object nie ma metody decode()")
 
-    print("READY FOR QUANTIZATION & EXPORT")
+            if pil_img is None:
+                raise RuntimeError(f"Nie udało się uzyskać obrazu PIL dla {name}")
+
+            out_path = out_dir / (name + ".png")
+            # Upewnij się, że zapisujemy PIL Image (RGBA) jako PNG
+            if isinstance(pil_img, Image.Image):
+                pil_img.save(out_path, "PNG")
+            else:
+                # jeśli pil_img jest QImage/QPixmap (nie powinno się zdarzyć w obecnej implementacji),
+                # spróbujmy skonwertować przez bytes (rzadki kod ścieżki)
+                raise RuntimeError(f"Obiekt pil_image dla {name} nie jest PIL.Image (typ={type(pil_img)})")
+
+            saved.append(str(out_path))
+        except Exception as e:
+            # przerwij i zgłoś błąd — zgodnie z Twoim wymaganiem, żeby zatrzymać przy niezgodnościach
+            raise RuntimeError(f"Failed to export TIM -> PNG for '{name}': {e}") from e
+
+    # opcjonalnie zwróć listę zapisanych plików
+    return saved
+
 
 
 def convert_png_tim(folder_a: str, folder_b: str, out_folder: str):
