@@ -65,7 +65,7 @@ class MainWindow(QWidget):
         layout.addWidget(btn_a, 0, 2)
 
         # Folder B (PNG WIP)
-        layout.addWidget(QLabel("WIP Folder (PNG):"), 1, 0)
+        layout.addWidget(QLabel("Work Folder (PNG):"), 1, 0)
         self.edit_b = QLineEdit()
         layout.addWidget(self.edit_b, 1, 1)
         btn_b = QPushButton("Browse")
@@ -73,7 +73,7 @@ class MainWindow(QWidget):
         layout.addWidget(btn_b, 1, 2)
 
         # Convert to PNG
-        self.btn_convert_to_png = QPushButton("Convert source to WIP-PNG")
+        self.btn_convert_to_png = QPushButton("Convert source to work PNG")
         self.btn_convert_to_png.clicked.connect(self.source_convert)
         layout.addWidget(self.btn_convert_to_png, 2, 1)
 
@@ -159,21 +159,20 @@ class MainWindow(QWidget):
         work_folder = self.edit_b.text().strip()
 
         if not source_folder or not work_folder:
-            QMessageBox.warning(self, "Brak danych", "Wybierz folder źródłowy (TIM) i WIP (PNG).")
+            QMessageBox.warning(self, "No data", "Select source (TIM) and work (PNG) folders.")
             return
 
         if not Path(source_folder).is_dir() or not Path(work_folder).is_dir():
-            QMessageBox.warning(self, "Błędne ścieżki", "Podane foldery nie istnieją lub są nieprawidłowe.")
+            QMessageBox.warning(self, "Invalid paths", "Source or work folder does not exist or is invalid.")
             return
 
         try:
             convert_tim_png(source_folder, work_folder)
             self._save_config()
-            QMessageBox.information(self, "Zakończono", "Konwersja TIM → PNG zakończona.")
+            QMessageBox.information(self, "Finished", "TIM → PNG conversion completed.")
         except Exception as e:
             traceback.print_exc()
-            QMessageBox.critical(self, "Błąd", f"Wystąpił błąd:\n{e}")
-
+            QMessageBox.critical(self, "Error", f"An error occurred:\n{e}")
     # Konwersja roboczego PNG spowrotem do TIM
     def final_convert(self) -> None:
         source_folder = self.edit_a.text().strip()
@@ -181,11 +180,11 @@ class MainWindow(QWidget):
         output_folder = self.edit_out.text().strip()
 
         if not source_folder or not work_folder or not output_folder:
-            QMessageBox.warning(self, "Brak danych", "Wybierz wszystkie foldery (source, WIP, output).")
+            QMessageBox.warning(self, "No data", "Select all folders (source, work, output).")
             return
 
         if not Path(source_folder).is_dir() or not Path(work_folder).is_dir():
-            QMessageBox.warning(self, "Błędne ścieżki", "Source lub WIP folder nie istnieje lub jest nieprawidłowy.")
+            QMessageBox.warning(self, "Invalid paths", "Source or work folder does not exist or is invalid.")
             return
 
         try:
@@ -193,10 +192,10 @@ class MainWindow(QWidget):
             Path(output_folder).mkdir(parents=True, exist_ok=True)
             convert_png_tim(source_folder, work_folder, output_folder)
             self._save_config()
-            QMessageBox.information(self, "Zakończono", "Konwersja PNG → TIM zakończona.")
+            QMessageBox.information(self, "Finished", "PNG → TIM conversion completed.")
         except Exception as e:
             traceback.print_exc()
-            QMessageBox.critical(self, "Błąd", f"Wystąpił błąd:\n{e}")
+            QMessageBox.critical(self, "Error", f"An error occurred:\n{e}")
 
     def closeEvent(self, event) -> None:
         """Zapisz config przy zamknięciu okna."""
