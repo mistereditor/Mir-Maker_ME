@@ -147,51 +147,19 @@ def validate_group_palettes(
 # 5. Główna funkcja wywoływana przez UI
 # ============================================================
 
-def convert(folder_a: str, folder_b: str, out_folder: str):
-    """
-    Główna funkcja konwersji (wywoływana przez UI).
-
-    Aktualnie:
-    - wczytuje TIM
-    - dopasowuje PNG
-    - grupuje po CLUT
-    - waliduje dane
-
-    W kolejnych krokach:
-    - kwantyzacja
-    - podmiana CLUT
-    - zapis TIM
-    """
-    print("Loading TIM files...")
-    tim_objects = load_tim_files(folder_a)
-
-    print("Matching PNG files...")
-    png_map = match_png_files(tim_objects, folder_b)
-
-    print("Grouping by CLUT coords...")
-    groups = group_by_clut_coords(tim_objects)
-
-    print("Validating groups...")
-    validate_group_palettes(groups, png_map)
-
-    print("READY FOR QUANTIZATION & EXPORT")
-
-
 def convert_tim_png(folder_a: str, folder_b: str):
-    """
-    Główna funkcja konwersji (wywoływana przez UI).
+    print("Loading TIM files...")
+    tim_objects = load_tim_files(folder_a)
 
-    Aktualnie:
-    - wczytuje TIM
-    - dopasowuje PNG
-    - grupuje po CLUT
-    - waliduje dane
+    print("Saving PNG files...")
+    png_map = match_png_files(tim_objects, folder_b)
 
-    W kolejnych krokach:
-    - kwantyzacja
-    - podmiana CLUT
-    - zapis TIM
-    """
+
+    print("READY FOR QUANTIZATION & EXPORT")
+
+
+def convert_png_tim(folder_a: str, folder_b: str, out_folder: str):
+
     print("Loading TIM files...")
     tim_objects = load_tim_files(folder_a)
 
@@ -205,3 +173,5 @@ def convert_tim_png(folder_a: str, folder_b: str):
     validate_group_palettes(groups, png_map)
 
     print("READY FOR QUANTIZATION & EXPORT")
+
+
